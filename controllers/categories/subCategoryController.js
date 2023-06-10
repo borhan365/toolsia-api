@@ -167,9 +167,18 @@ const createSubCategoryController = (modelName) => {
   const getAll = async (req, res) => {
     try {
       // Find all documents
-      const documents = await Model.find({}).sort({'createdAt': -1}).populate('childCategories');
-
-      res.json(documents);
+      // const documents = await Model.find({}).sort({'createdAt': -1}).populate('childCategories');
+    const result = await Model.aggregate([
+      {
+        $lookup: {
+          from: "softwarechildcategories",
+          localField: "_id",
+          foreignField: "parentCategory",
+          as: "subCategoryList"
+        }
+      }
+    ])
+      res.json(result);
     } catch (error) {
       res.status(500).json({ message: `Something went wrong. ${error}` });
     }

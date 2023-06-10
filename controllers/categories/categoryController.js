@@ -53,7 +53,7 @@ const createCategoryController = (modelName) => {
         flag,
         thumbnail,
         hightlight,
-        table,
+        table,  
         suggestLinks,
         buyingGuide,
         articles,
@@ -139,10 +139,52 @@ const createCategoryController = (modelName) => {
   // Controller to get all documents
   const getAll = async (req, res) => {
     try {
-      // Find all documents
+    const result = await Model.aggregate([
+        {
+          $lookup: {
+            from: "softwaresubcategories",
+            localField: "_id",
+            foreignField: "parentCategory",
+            as: "subCategoryList"
+          }
+        },
+        {
+          $unwind: "$subCategoryList"
+        },
+        {
+          $lookup: {
+            from: "softwarechildcategories",
+            localField: "subCategoryList._id",
+            foreignField: "parentCategory",
+            as: "subCategoryList.childCategories"
+          }
+        },
+        {
+          $group: {
+            _id: "$_id",
+            name: { $first: "$name" }, // Replace with other fields from the "Model" collection as needed
+            oneLineIntro: { $first: "$oneLineIntro" },
+            excerpt: { $first: "$excerpt" },
+            description: { $first: "$description" },
+            flag: { $first: "$flag" },
+            thumbnail: { $first: "$thumbnail" },
+            buyingGuide: { $first: "$buyingGuide" },
+            articles: { $first: "$articles" },
+            softwares: { $first: "$softwares" },
+            slug: { $first: "$slug" },
+            createdAt: { $first: "$createdAt" },
+            updatedAt: { $first: "$updatedAt" },
+            __v: { $first: "$__v" },
+            subCategoryList: { $push: "$subCategoryList" }
+          }
+        }
+      ]);
+      
+      
+
       const documents = await Model.find({}).sort({'createdAt': -1}).populate('subCategories');
 
-      res.json(documents);
+      res.json(result);
     } catch (error) {
       res.status(500).json({ message: `Something went wrong. ${error}` });
     }
