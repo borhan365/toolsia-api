@@ -5,8 +5,8 @@ const router = express.Router()
 
 router.post('/', createPageController)
 router.get('/', allPageController)
-router.get('/:enSlug', detailsPageController)
-router.put('/:enSlug', updatePageController)
+router.get('/:slug', detailsPageController)
+router.put('/:slug', updatePageController)
 router.delete('/:id', deletePageController)
 
 export default router;

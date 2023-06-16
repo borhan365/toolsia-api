@@ -4,7 +4,7 @@ const router = express.Router()
 
 router.post('/', createArticleController)
 router.delete('/:id', deleteArticleController)
-router.delete('/delete-all', deleteAllArticleController)
+router.delete('/', deleteAllArticleController)
 router.put('/:slug', updateArticleController)
 router.get('/', allArticleController)
 router.get('/:slug', detailsArticleController)

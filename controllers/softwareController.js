@@ -2,56 +2,65 @@ import asyncHandler from 'express-async-handler';
 import slugify from 'slugify';
 import SoftwareModel from '../models/softwareModel.js';
 // import slugify from 'slugify'
-import DegreeModel from '../models/doctorDegreeModel.js';
-import SpecialistModel from '../models/doctorSpecialistModel.js';
-import LocationModel from '../models/locationModel.js';
+import createCategoryModel from '../models/categories/categoryModel.js';
+
+const SoftwareCategoryModel = createCategoryModel("SoftwareCategory");
+
 
 // CREATE POST
-const createSoftwareController = asyncHandler(async(req, res) => {
-  const {basicInfo,specification,socialMedia,prosCons,pricing,messages,productTable,comparisons,productAds,videos,screenShots,claimed,publisher,articles,categories,reviews} = req.body;
-  
-  let slug = slugify(basicInfo?.name).toLowerCase()
+const createSoftwareController = async (req, res) => {
+  try {
+    const { basicInfo, specification, socialMedia, prosCons, pricing, messages, productTable, comparisons, productAds, videos, screenShots, profileClaimed, publisher, articles, categories, reviews } = req.body;
 
-  const doctor = await SoftwareModel.findOne({'slug': slug})
-  if(doctor?.slug === slug) {
-    return res.status(404).json({error: "Software slug is already exist!"})
-  }
+    console.log('req.body:', req.body);
 
-    const createSoftware = await SoftwareModel.create({basicInfo,specification,socialMedia,prosCons,pricing,messages,productTable,comparisons,productAds,slug,videos,screenShots,claimed,publisher,articles,categories,reviews})
+    // Input validation
+    // if (!basicInfo || !basicInfo.name) {
+    //   return res.status(400).json({ error: "Missing required field: name" });
+    // }
 
-    // await LocationModel.updateMany({
-    //   _id: location
-    // }, {
-    //   $push: {
-    //     doctors: createSoftware._id
-    //   }
-    // }, {"multi": true})
+    const slug = slugify(basicInfo?.name).toLowerCase();
 
-    // // degree
-    // await DegreeModel.updateMany({
-    //   _id: degree
-    // }, {
-    //   $push: {
-    //     doctors: createSoftware._id
-    //   }
-    // }, {"multi": true})
-    
-    // // specialist
-    // await SpecialistModel.updateMany({
-    //   _id: specialist
-    // }, {
-    //   $push: {
-    //     doctors: createSoftware._id
-    //   }
-    // }, {"multi": true})
-    
-    if(createSoftware) {
+    // const existingSoftware = await SoftwareModel.findOne({ slug });
+    // if (existingSoftware) {
+    //   return res.status(409).json({ error: "Software with the same slug already exists!" });
+    // }
+
+    const createSoftware = await SoftwareModel.create({
+      basicInfo,
+      specification,
+      socialMedia,
+      prosCons,
+      pricing,
+      messages,
+      productTable,
+      comparisons,
+      productAds,
+      slug,
+      videos,
+      screenShots,
+      profileClaimed, // Updated variable name
+      publisher,
+      articles,
+      categories,
+      reviews
+    });
+
+    await SoftwareCategoryModel.updateOne({
+      _id: req.body.id
+    }, {
+      $push: {
+        Softwaresss: createSoftware._id
+      }
+    })
+
+    if (createSoftware) {
       res.status(201).json({
         _id: createSoftware._id,
         basicInfo: createSoftware.basicInfo,
-        specification: createSoftware.specification,  
-        socialMedia: createSoftware.socialMedia,  
-        prosCons: createSoftware.prosCons,      
+        specification: createSoftware.specification,
+        socialMedia: createSoftware.socialMedia,
+        prosCons: createSoftware.prosCons,
         pricing: createSoftware.pricing,
         messages: createSoftware.messages,
         productTable: createSoftware.productTable,
@@ -59,19 +68,22 @@ const createSoftwareController = asyncHandler(async(req, res) => {
         productAds: createSoftware.productAds,
         videos: createSoftware.videos,
         screenShots: createSoftware.screenShots,
-        claimed: createSoftware.claimed,
+        profileClaimed: createSoftware.profileClaimed, // Updated variable name
         publisher: createSoftware.publisher,
         articles: createSoftware.articles,
         categories: createSoftware.categories,
         reviews: createSoftware.reviews,
-        slug: createSoftware.slug,
-      })
-      
+        slug: createSoftware.slug
+      });
     } else {
-      res.status(400).json({msg: "Software created faield"})
+      res.status(400).json({ error: "Failed to create software" });
     }
+  } catch (error) {
+    res.status(500).json({ error: `Internal server error ${error}` });
+  }
+};
 
-})
+
 
 // EDIT Doctor
 const updateSoftwareController = asyncHandler(async(req, res) => {
@@ -228,11 +240,6 @@ const deleteAllSoftwareController = async (req, res) => {
 };
 
 export {
-  createSoftwareController,
-  deleteSoftwareController,
-  updateSoftwareController,
-  detailsSoftwareController,
-  deleteAllSoftwareController,
-  allSoftwareController
+  allSoftwareController, createSoftwareController, deleteAllSoftwareController, deleteSoftwareController, detailsSoftwareController, updateSoftwareController
 };
 

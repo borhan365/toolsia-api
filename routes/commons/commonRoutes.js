@@ -16,6 +16,7 @@ const ReviewProfessionController = createCommonController('ReviewProfession');
 const UsingTimeController = createCommonController('UsingTime');
 const AdSlotController = createCommonController('AdSlot');
 const CompanySizeController = createCommonController('CompanySize');
+const BusinessScopeController = createCommonController('BusinessScope');
 
 // Language Routes
 router.post('/language', LanguageController.create);
@@ -112,5 +113,13 @@ router.get('/company-size/:id', CompanySizeController.getSingle);
 router.get('/company-size', CompanySizeController.getAll);
 router.delete('/company-size/:id', CompanySizeController.deleteSingle);
 router.delete('/company-size', CompanySizeController.deleteAll);
+
+// Business scope
+router.post('/business-scope', BusinessScopeController.create);
+router.put('/business-scope/:id', BusinessScopeController.update);
+router.get('/business-scope/:id', BusinessScopeController.getSingle);
+router.get('/business-scope', BusinessScopeController.getAll);
+router.delete('/business-scope/:id', BusinessScopeController.deleteSingle);
+router.delete('/business-scope', BusinessScopeController.deleteAll);
 
 export default router;

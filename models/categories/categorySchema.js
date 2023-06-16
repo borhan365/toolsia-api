@@ -2,13 +2,16 @@ import mongoose from 'mongoose';
 
 // Software
 const softwareCategorySchema = mongoose.Schema({
-  name: String,
-  oneLineIntro: String,
-  excerpt: String,
-  description: String,
-  flag: String,
-  thumbnail: String,
-  hightlight: String,
+  basicInfo: {
+    name: String,
+    oneLineIntro: String,
+    excerpt: String,
+    description: String,
+    flag: String,
+    thumbnail: String,
+    hightlight: String,
+    isFeatured: String,
+  },
   table: {
     title: String,
     description: String,
@@ -51,6 +54,7 @@ const softwareCategorySchema = mongoose.Schema({
         buttonBadge: {
           type: String
         },
+        isFeatured: String,
         logo: {
           type: String
         }

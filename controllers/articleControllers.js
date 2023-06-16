@@ -1,146 +1,131 @@
 import asyncHandler from 'express-async-handler';
 import slugify from 'slugify';
 import Article from '../models/articleModel.js';
-import Category from '../models/softwareCategoryModel.js';
-import SoftwareModel from '../models/softwareModel.js';
 
-// CREATE POST
-const createArticleController = asyncHandler(async(req, res) => {
-  const {en, bn, common, user, tags, author, thumb, categories, doctorList} = req.body;
+// CREATE ARTICLE
+// CREATE ARTICLE
+const createArticleController = asyncHandler(async (req, res) => {
+  const { basicInfo, common, user, author, thumb, categories, faqs, doctorList } = req.body;
+
+  // Check if basicInfo.title or basicInfo.slug already exist in the database
+  // const existingArticle = await Article.findOne({
+  //   'basicInfo.title': basicInfo.title,
+  // });
   
-  let enSlug = slugify(en?.basicInfo?.title).toLowerCase();
-  let bnSlug = slugify(en?.basicInfo?.title).toLowerCase() + "-bn";
 
-    const newsCreate = await Article.create({
-      en, bn, common, user, tags, author, thumb, categories, doctorList, enSlug, bnSlug 
-      // user: req.user._id
-    })
+  // if (existingArticle) {
+  //   res.status(400);
+  //   throw new Error('An article with the same title or slug already exists');
+  // }
 
-    await Category.updateMany({
-      _id: categories
-    }, {
-      $push: {
-        categoryNews: newsCreate._id
-      }
-    }, {"multi": true})
+  // Make basicInfo.title required
+  // if (!basicInfo.title) {
+  //   res.status(400);
+  //   throw new Error('Title is required');
+  // } 
+  // if(!common?.postStatus) {
+  //   res.status(400);
+  //   throw new Error('Post Status is required');
+  // } 
 
-    // push article in doctor
-    await SoftwareModel.updateOne({
-      _id: newsCreate.author
-    }, {
-      $push: {
-        articles: newsCreate._id
-      }
-    })
-    
-    if(newsCreate) {
-      res.status(201).json({
-        _id: newsCreate._id,
-        en: newsCreate.en,
-        bn: newsCreate.bn,
-        common: newsCreate.common,
-        user: newsCreate.user,
-        author: newsCreate.author,
-        thumb: newsCreate.thumb,
-        description: newsCreate.description,
-        tags: newsCreate.tags,
-        doctorList: newsCreate.doctorList,
-        categories: newsCreate.categories,
-        enSlug: slugify(en?.basicInfo?.title).toLowerCase(),
-        bnSlug: slugify(en?.basicInfo?.title).toLowerCase() + "-bn"
-      })
-      
-    } else {
-      res.status(400).json({msg: "Article created faield"})
-    }
+  const slug = slugify(basicInfo.title).toLowerCase() || null;
 
-})
+  const article = await Article.create({
+    basicInfo,
+    common,
+    user,
+    author,
+    thumb,
+    categories,
+    faqs,
+    doctorList,
+    slug,
+  });
 
-// EDIT NEWS
-const updateArticleController = asyncHandler(async(req, res) => {
-  try {
-    const news = await Article.findOne({slug: req.params.slug})
+  res.status(201).json(article);
+});
 
-    if (news) {
-      const updateNews = await Article.findOneAndUpdate(req.params.slug, {
-        $set: req.body
-      }, {new: true})
-      res.status(200).json(updateNews)
-    } else {
-      res.status(401).json("You can update only your post!");
-    }
-  } catch (error) {
-    res.status(404)
-      throw new Error('article not found')
+// DELETE ARTICLE
+const deleteArticleController = asyncHandler(async (req, res) => {
+  const article = await Article.findById(req.params.id);
+  if (!article) {
+    res.status(404);
+    throw new Error('Article not found');
   }
-})
 
-// GET SINGLE NEWS
-const detailsArticleController = asyncHandler(async(req, res) => {
+  await article.remove();
+  res.json({ message: 'Article deleted' });
+});
 
-    Article.findOne({ slug: req.params.slug })
-        .populate('categories', 'enName bnName enSlug bnSlug')
-        .populate('author', 'en bn degree enSlug bnSlug')
-        .exec((err, data) => {
-            if (err) {
-                return res.json({
-                    error: "Article fetching failed!"
-                });
-            }
-            res.json(data);
-        });
-})
+// UPDATE ARTICLE
+const updateArticleController = asyncHandler(async (req, res) => {
+  // const article = await Article.findOne({ slug: req.params.slug });
+  // if (!article) {
+  //   res.status(404);
+  //   throw new Error('Article not found');
+  // }
 
-// ALL NEWS LIST
-const allArticleController = asyncHandler( async( req, res) => {
-  const users = await Article.find({}).populate('categories', 'name slug').populate('user', 'name slug').sort({createdAt: 'desc'})
-  if(users) {
-    res.status(200).json(users)
+  // article.basicInfo = req.body.basicInfo || article.basicInfo;
+  // article.common = req.body.common || article.common;
+  // article.slug = req.body.slug || article.slug;
+  // article.categories = req.body.categories || article.categories;
+  // article.faqs = req.body.faqs || article.faqs;
+  // article.user = req.body.user || article.user;
+  // article.author = req.body.author || article.author;
+  // article.thumb = req.body.thumb || article.thumb;
+  // article.doctorList = req.body.doctorList || article.doctorList;
+
+  // const updatedArticle = await article.save();
+  // res.json(updatedArticle);
+
+  const DoctorType = await Article.find({slug: req.params.slug})
+  
+  if(DoctorType) {
+    const updateDoctorType = await Article.findByIdAndUpdate(req.params.slug, {
+      $set: req.body,
+    }, {new: true})
+    res.status(200).json(updateDoctorType)
   } else {
-    res.status(404).json({msg: "News not found"})
+    res.status(404).json({msg: "Article update failed!"})
   }
-})
+});
 
-// DELETE POST
-const deleteArticleController = asyncHandler(async(req, res) => {
-  const news = Article.findById(req.params.id)
-  if(!news) {
-    res.status(404)
-    throw new Error("News not found")
-  } else {
-    const deleteNews = await Article.remove()
-    if(deleteNews) {
-      res.status(200).json({message: "Article deleted!"})
-    } else {
-      res.status(500)
-      throw new Error("Article delete error! server side error!")
-    }
-  }
-})
+// GET SINGLE ARTICLE
+const detailsArticleController = asyncHandler(async (req, res) => {
+  const article = await Article.findOne({ slug: req.params.slug })
 
-// DELETE POST
-const deleteAllArticleController = asyncHandler(async(req, res) => {
-  const articles = Article.find({})
-  if(!articles) {
-    res.status(404)
-    throw new Error("articles not found")
+  if (article) {
+    res.json(article);
   } else {
-    const deletearticles = await Article.remove()
-    if(deletearticles) {
-      res.status(200).json({message: "articles deleted!"})
-    } else {
-      res.status(500)
-      throw new Error("Server side error!")
-    }
+    res.status(404);
+    throw new Error('Article not found');
   }
-})
+});
+
+// DELETE ALL ARTICLES
+const deleteAllArticleController = asyncHandler(async (req, res) => {
+  await Article.deleteMany({});
+  res.json({ message: 'All articles deleted' });
+});
+
+// GET ALL ARTICLES
+const allArticleController = asyncHandler(async (req, res) => {
+  const articles = await Article.find({})
+    // .populate('categories', 'name slug')
+    // .populate('user', 'name slug')
+    .sort({ createdAt: 'desc' });
+
+  if (articles.length === 0) {
+    res.status(404);
+    throw new Error('No articles found. Please insert new ones.');
+  }
+
+  res.json(articles);
+});
+
+
 
 export {
-  createArticleController,
-  deleteArticleController,
-  updateArticleController,
-  detailsArticleController,
-  deleteAllArticleController,
-  allArticleController
+  allArticleController, createArticleController, deleteAllArticleController, deleteArticleController, detailsArticleController, updateArticleController
 };
 

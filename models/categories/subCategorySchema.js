@@ -2,13 +2,16 @@ import mongoose from 'mongoose';
 
 // Software Sub Category
 const softwareSubCategorySchema = mongoose.Schema({
-  name: String,
-  oneLineIntro: String,
-  excerpt: String,
-  description: String,
-  flag: String,
-  thumbnail: String,
-  hightlight: String,
+  basicInfo: {
+    name: String,
+    oneLineIntro: String,
+    excerpt: String,
+    description: String,
+    flag: String,
+    thumbnail: String,
+    hightlight: String,
+    isFeatured: String,
+  },
   table: {
     title: String,
     description: String,

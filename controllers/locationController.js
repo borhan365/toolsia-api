@@ -87,10 +87,67 @@ const deleteLocation = asyncHandler(async(req, res) => {
   }
 })
 
+// Get all state
+
+function getFirstChildren(createCat, parentId) {
+  const children = createCat.filter(cat => cat.parentId === parentId);
+  return children.length > 0 ? children[0] : null;
+}
+
+function getLocationStates(createCat, parentId) {
+  console.log('Current parentId:', parentId);
+  
+  const children = createCat.filter(cat => cat.parentId === parentId);
+  console.log('Children:', children);
+
+  const locationStates = children.map(cat => ({
+    _id: cat._id,
+    name: cat.name,
+    slug: cat.slug,
+    onLineIntro: cat.onLineIntro,
+    excerpt: cat.excerpt,
+    description: cat.description,
+    flag: cat.flag,
+    thumbnail: cat.thumbnail,
+    hightlight: cat.hightlight,
+    table: cat.table,
+    suggestLinks: cat.suggestLinks,
+    parentId: cat.parentId,
+    createdAt: cat.createdAt,
+    children: getLocationStates(createCat, cat._id),
+  }));
+  console.log('Generated locationStates:', locationStates);
+
+  return locationStates;
+}
+
+
+const getLocationStatesController = async (req, res) => {
+  try {
+    // Fetch all location categories from the database
+    const createCat = await Location.find({});
+
+    console.log('createCat:', createCat); // Check the fetched data
+
+    // Get all location states (including nested children)
+    const locationStates = getLocationStates(createCat, null);
+
+    console.log('locationStates:', locationStates); // Check the generated location states
+
+    res.status(200).json(locationStates);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: 'Internal server error' });
+  }
+};
+
+
+// end get all state
+
 // ALL CATEGORIES
 const allLocations = asyncHandler(async(req, res) => {
-  const location = await Location.find({})
-
+  const location = await Location.find({}).populate('parentId')
+  if (!location) return [];
   const LocationList = createSubLocation(location)
 
   if(location) {
@@ -163,6 +220,7 @@ export {
   singleLocation,
   updateLocation,
   deleteAll,
-  getStateLocation
+  getStateLocation,
+  getLocationStatesController,
 };
 

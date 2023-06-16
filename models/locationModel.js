@@ -43,9 +43,10 @@ const locationSchema = mongoose.Schema ({
     type: mongoose.Types.ObjectId,
     ref: "Software"
   }],
-  parentId: {
-    type: String,
-  }
+  parentId: [{
+    type: mongoose.Types.ObjectId,
+    ref: "Location"
+  }]
 })
 
 const LocationModel = mongoose.model('Location', locationSchema)

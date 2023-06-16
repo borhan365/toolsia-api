@@ -10,13 +10,8 @@ const createCategoryController = (modelName) => {
     try {
       // Get field from req.body
       const { 
-        name,
-        oneLineIntro,
-        excerpt,
-        description,
-        flag,
+        basicInfo,
         thumbnail,
-        hightlight,
         table,
         suggestLinks,
         buyingGuide,
@@ -24,13 +19,13 @@ const createCategoryController = (modelName) => {
         softwares, 
       } = req.body;
 
+      const { name } = req.body.basicInfo;
+
       // create slug
       const slug = slugify(name).toLowerCase() || null;
 
       // Check if name, _id, or slug already exists
-      const existingLocation = await Model.findOne({
-        $or: [{ name }, { slug: slugify(name).toLowerCase() }],
-      });
+      const existingLocation = await Model.findOne({ slug: slugify(name).toLowerCase() });
 
       if (existingLocation) {
         res.status(400).json({ message: 'Document with the same name or slug already exists' });
@@ -46,13 +41,8 @@ const createCategoryController = (modelName) => {
 
       // Create a new document
       const newDocument = await Model.create({ 
-        name,
-        oneLineIntro,
-        excerpt,
-        description,
-        flag,
+        basicInfo,
         thumbnail,
-        hightlight,
         table,  
         suggestLinks,
         buyingGuide,
@@ -72,13 +62,8 @@ const createCategoryController = (modelName) => {
     try {
       const { slug } = req.params;
       const {         
-        name,
-        oneLineIntro,
-        excerpt,
-        description,
-        flag,
+        basicInfo,
         thumbnail,
-        hightlight,
         table,
         suggestLinks,
         buyingGuide,
@@ -92,13 +77,8 @@ const createCategoryController = (modelName) => {
       const updatedDocument = await Model.findOneAndUpdate(
         slug,
         { 
-          name,
-          oneLineIntro,
-          excerpt,
-          description,
-          flag,
+          basicInfo,
           thumbnail,
-          hightlight,
           table,
           suggestLinks,
           buyingGuide,
@@ -136,6 +116,88 @@ const createCategoryController = (modelName) => {
     }
   };
 
+  // Get all names
+  const getAllCategoryNames = async (req, res) => {
+    try {
+      const result = await Model.aggregate([
+        {
+          $lookup: {
+            from: "softwaresubcategories",
+            localField: "_id",
+            foreignField: "parentCategory",
+            as: "subCategories"
+          }
+        },
+        {
+          $unwind: "$subCategories"
+        },
+        {
+          $lookup: {
+            from: "softwarechildcategories",
+            localField: "subCategories._id",
+            foreignField: "parentCategory",
+            as: "subCategories.childCategories"
+          }
+        },
+        {
+          $group: {
+            _id: {
+              categoryId: "$_id",
+              basicInfo: "$basicInfo",
+              categorySlug: "$slug",
+              subCategory: {
+                _id: "$subCategories._id",
+                basicInfo: "$subCategories.basicInfo",
+                slug: "$subCategories.slug"
+              }
+            },
+            childCategories: {
+              $push: {
+                $map: {
+                  input: "$subCategories.childCategories",
+                  as: "childCategory",
+                  in: {
+                    _id: "$$childCategory._id",
+                    basicInfo: "$$childCategory.basicInfo",
+                    slug: "$$childCategory.slug"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          $group: {
+            _id: "$_id.categoryId",
+            basicInfo: { $first: "$_id.basicInfo" },
+            categorySlug: { $first: "$_id.categorySlug" },
+            subCategories: {
+              $push: {
+                _id: "$_id.subCategory._id",
+                basicInfo: "$_id.subCategory.basicInfo",
+                slug: "$_id.subCategory.slug",
+                childCategories: {
+                  $reduce: {
+                    input: "$childCategories",
+                    initialValue: [],
+                    in: { $concatArrays: ["$$value", "$$this"] }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]);
+  
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ message: `Something went wrong. ${error}` });
+    }
+  };
+  
+  
+  
+  
   // Controller to get all documents
   const getAll = async (req, res) => {
     try {
@@ -145,28 +207,24 @@ const createCategoryController = (modelName) => {
             from: "softwaresubcategories",
             localField: "_id",
             foreignField: "parentCategory",
-            as: "subCategoryList"
+            as: "subCategories"
           }
         },
         {
-          $unwind: "$subCategoryList"
+          $unwind: "$subCategories"
         },
         {
           $lookup: {
             from: "softwarechildcategories",
-            localField: "subCategoryList._id",
+            localField: "subCategories._id",
             foreignField: "parentCategory",
-            as: "subCategoryList.childCategories"
+            as: "subCategories.childCategories"
           }
         },
         {
           $group: {
             _id: "$_id",
-            name: { $first: "$name" }, // Replace with other fields from the "Model" collection as needed
-            oneLineIntro: { $first: "$oneLineIntro" },
-            excerpt: { $first: "$excerpt" },
-            description: { $first: "$description" },
-            flag: { $first: "$flag" },
+            basicInfo: { $first: "$basicInfo" }, 
             thumbnail: { $first: "$thumbnail" },
             buyingGuide: { $first: "$buyingGuide" },
             articles: { $first: "$articles" },
@@ -175,13 +233,11 @@ const createCategoryController = (modelName) => {
             createdAt: { $first: "$createdAt" },
             updatedAt: { $first: "$updatedAt" },
             __v: { $first: "$__v" },
-            subCategoryList: { $push: "$subCategoryList" }
+            subCategories: { $push: "$subCategories" }
           }
         }
       ]);
       
-      
-
       const documents = await Model.find({}).sort({'createdAt': -1}).populate('subCategories');
 
       res.json(result);
@@ -220,14 +276,30 @@ const createCategoryController = (modelName) => {
     }
   };
 
+  // list of category
+  const categoryLists = async (req, res) => {
+    const categories = await Model.find(); 
+    try {
+      if(categories) {
+        res.status(200).json(categories)
+      } else {
+        res.status(404).json({message: "Categories not found!"})
+      }
+    } catch (error) {
+      res.status(404).json({message: `Categoires not found ${error}`})
+    }
+  }
+
   // Return an object with the controller functions
   return {
     create,
     update,
     getSingle,
     getAll,
+    getAllCategoryNames,
     deleteSingle,
     deleteAll,
+    categoryLists,
   };
 
 };

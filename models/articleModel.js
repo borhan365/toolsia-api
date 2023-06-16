@@ -1,105 +1,64 @@
 import mongoose from 'mongoose';
 
-const articleSchema = mongoose.Schema({
-    en: {
-      basicInfo: {
-        title: {
-          type: String,
-        },
-        subTitle: {
-          type: String,
-        },
-        excerpt: {
-          type: String,
-        },
-        description: {
-          type: String,
-        }
-      },
-    },
-    bn: {
-      basicInfo: {
-        title: {
-          type: String,
-        },
-        subTitle: {
-          type: String,
-        },
-        excerpt: {
-          type: String,
-        },
-        description: {
-          type: String,
-        }
-      },
+const articleSchema = mongoose.Schema(
+  {
+    basicInfo: {
+      title: String,
+      subTitle: String,
+      excerpt: String,
+      description: String,
     },
     common: {
-      basicInfo: {
-        fakeView: {
-          type: String,
-        }, 
-        fakeShare: {
-          type: String,
-        }, 
-        isSponsored: {
-          type: Boolean,
-        },
-        postType: {
-          type: String,
-          default: 'article',
-        },
-        postStatus: {
-          type: String,
-        },
+      fakeView: String,
+      fakeShare: String,
+      isSponsored: Boolean,
+      isPinned: Boolean,
+      postStatus: String,
+    },
+    faqs: [
+      {
+        question: String,
+        answer: String,
       },
-    },
-    enSlug: {
-      type: String,
-    },
-    bnSlug: {
-      type: String,
-    },
-    categories: [{
-      type: mongoose.Types.ObjectId,
-      ref: "Category"
-    }],
+    ],
+    slug: String,
+    categories: [
+      {
+        type: mongoose.Types.ObjectId,
+        ref: 'Category',
+      },
+    ],
     user: {
       type: mongoose.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
     },
-    tags: [{
-      type: String,
-    }],
     author: {
       type: mongoose.Types.ObjectId,
-      ref: "Doctor",
+      ref: 'Doctor',
     },
-    thumb: {
-      type: String,
-    },
+    slug: String,
+    thumb: String,
     doctorList: {
-      title: {
-        type: String,
-      },
-      description: {
-        type: String,
-      },
-      thumb: {
-        type: String,
-      },
+      title: String,
+      description: String,
+      thumb: String,
       doctors: [
         {
-          _id: {type: String},
-          name: {type: String},
-          email: {type: String},
-          numberOne: {type: String},
-          location: {type: String},
-          hospital: {type: String},
-          specialist: {type: String},
-        }
-      ]
-    }
-}, {timestamps: true})
+          _id: String,
+          name: String,
+          email: String,
+          numberOne: String,
+          location: String,
+          hospital: String,
+          specialist: String,
+        },
+      ],
+    },
+  },
+  {
+    timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' }
+  }
+);
 
-const Article = new mongoose.model('Article', articleSchema)
+const Article = mongoose.model('Article', articleSchema);
 export default Article;

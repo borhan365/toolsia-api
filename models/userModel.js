@@ -22,10 +22,8 @@ const userSchema = mongoose.Schema(
       type: String,
       // required: true,
     },
-    isAdmin: {
-      type: Boolean,
-      // required: true,
-      default: false,
+    role: {
+      type: String,
     },
     doctors: [{
       type: mongoose.Types.ObjectId,

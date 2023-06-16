@@ -14,7 +14,7 @@ const loginUser = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      isAdmin: user.isAdmin,
+      role: user.role,
       token: generateToken(user._id),
     })
   } else {
@@ -25,7 +25,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
 // REGISTATION
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, image, password, isAdmin } = req.body
+  const { name, email, image, password, role } = req.body
 
   const slug = slugify(name).toLowerCase();
 
@@ -42,7 +42,7 @@ const registerUser = asyncHandler(async (req, res) => {
     email,
     password,
     image,
-    isAdmin,
+    role,
   })
 
   if (user) {
@@ -52,7 +52,7 @@ const registerUser = asyncHandler(async (req, res) => {
       slug: user.slug,
       email: user.email,
       image: user.image,
-      isAdmin: user.isAdmin,
+      role: user.role,
       token: generateToken(user._id),
     })
   } else {

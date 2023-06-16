@@ -14,13 +14,7 @@ const createChildCategoryController = (modelName) => {
     try {
       // Get field from req.body
       const { 
-        name,
-        oneLineIntro,
-        excerpt,
-        description,
-        flag,
-        thumbnail,
-        hightlight,
+        basicInfo,
         table,
         suggestLinks,
         buyingGuide,
@@ -28,6 +22,9 @@ const createChildCategoryController = (modelName) => {
         softwares, 
         parentCategory,
       } = req.body;
+
+      
+      const { name } = req.body.basicInfo;
 
       // create slug
       const slug = slugify(name).toLowerCase() || null;
@@ -49,13 +46,7 @@ const createChildCategoryController = (modelName) => {
       
       // Create a new document
       const newDocument = await Model.create({ 
-        name,
-        oneLineIntro,
-        excerpt,
-        description,
-        flag,
-        thumbnail,
-        hightlight,
+        basicInfo,
         table,
         suggestLinks,
         buyingGuide,
@@ -97,13 +88,7 @@ const createChildCategoryController = (modelName) => {
     try {
       const { slug } = req.params;
       const {         
-        name,
-        oneLineIntro,
-        excerpt,
-        description,
-        flag,
-        thumbnail,
-        hightlight,
+        basicInfo,
         table,
         suggestLinks,
         buyingGuide,
@@ -118,13 +103,7 @@ const createChildCategoryController = (modelName) => {
       const updatedDocument = await Model.findOneAndUpdate(
         slug,
         { 
-          name,
-          oneLineIntro,
-          excerpt,
-          description,
-          flag,
-          thumbnail,
-          hightlight,
+          basicInfo,
           table,
           suggestLinks,
           buyingGuide,

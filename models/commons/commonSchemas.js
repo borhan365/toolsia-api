@@ -60,6 +60,11 @@ const companySize = mongoose.Schema({
   name: String,
 }, { timestamps: true });
 
+// company size
+const businessScope = mongoose.Schema({
+  name: String,
+}, { timestamps: true });
+
 export const commonSchemas = {
   Language: languageSchema,
   CompanyType: companyType,
@@ -73,4 +78,5 @@ export const commonSchemas = {
   UsingTime: usingTime,
   AdSlot: adSlot,
   CompanySize: companySize,
+  BusinessScope: businessScope,
 };

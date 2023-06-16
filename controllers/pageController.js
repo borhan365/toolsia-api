@@ -4,36 +4,37 @@ import PageModel from '../models/pageModel.js';
 
 // CREATE Page
 const createPageController = asyncHandler(async(req, res) => {
-  const {en, bn, common} = req.body;
+  const {name, excerpt, description, status, thumb, user} = req.body;
   
-  let enSlug = slugify(en?.name).toLowerCase()
-  let bnSlug = slugify(en?.name).toLowerCase() + "-bn"
+  let slug = slugify(name).toLowerCase() || null
 
-    const PageCreate = await PageModel.create({ en, bn, common, enSlug, bnSlug })
+    const PageCreate = await PageModel.create({ name, excerpt, description, status, thumb, user, slug })
     
     if(PageCreate) {
       res.status(201).json({
         _id: PageCreate._id,
-        en: PageCreate.en,
-        bn: PageCreate.bn,
-        common: PageCreate.common,
-        enSlug: PageCreate.enSlug,
-        bnSlug: PageCreate.bnSlug,
+        name: PageCreate.name,
+        excerpt: PageCreate.excerpt,
+        description: PageCreate.description,
+        thumb: PageCreate.thumb,
+        status: PageCreate.status,
+        user: PageCreate.user,
+        slug: PageCreate.slug,
       })
       
     } else {
-      res.status(400).json({msg: "Page created faield"})
+      res.status(400).json({message: "Page created faield"})
     }
 
 })
 
 // EDIT Page
 const updatePageController = asyncHandler(async(req, res) => {
-  const doctorEnSlug = req.params.enSlug;
+  const doctorEnSlug = req.params.slug;
     const doctorState = req.body;
 
     const query = {
-      enSlug: doctorEnSlug,
+      slug: doctorEnSlug,
     };
 
     const update = {
@@ -57,7 +58,7 @@ const updatePageController = asyncHandler(async(req, res) => {
 
 // GET SINGLE Page
 const detailsPageController = asyncHandler(async(req, res) => {
-    await PageModel.findOne({enSlug: req.params.enSlug})
+    await PageModel.findOne({slug: req.params.slug})
         .exec((err, data) => {
             if (err) {
                 return res.json({
@@ -71,7 +72,7 @@ const detailsPageController = asyncHandler(async(req, res) => {
 // ALL Page LIST
 const allPageController = asyncHandler( async( req, res) => {
   const pages = await PageModel.find({})
-  .populate('common.basicInfo.user')
+  .populate('user')
   .sort({createdAt: 'desc'})
   if(pages) {
     res.status(200).json(pages)
@@ -98,10 +99,7 @@ const deletePageController = asyncHandler(async(req, res) => {
 })
 
 export {
-  createPageController,
-  deletePageController,
-  updatePageController,
-  detailsPageController,
-  allPageController
+  allPageController, createPageController,
+  deletePageController, detailsPageController, updatePageController
 };
 

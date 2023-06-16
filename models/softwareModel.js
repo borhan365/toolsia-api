@@ -7,15 +7,15 @@ const timestampsMixin = {
 
 const reviewSchema = mongoose.Schema(
   {
-    title: { type: String, required: true },
-    rating: { type: Number, required: true },
+    title: { type: String },
+    rating: { type: Number },
     userName: String,
     usingTime: String,
     companySize: String,
     profession: String,
     photo: String,
     reviewDate: String,
-    description: { type: String, required: true },
+    description: { type: String },
     sourceName: String,
     sourceLink: String,
     pros: String,
@@ -33,11 +33,10 @@ const reviewSchema = mongoose.Schema(
     quality: String,
     user: {
       type: mongoose.Types.ObjectId,
-      required: true,
       ref: 'User',
     },
   },
-  { timestamps: timestampsMixin }
+  { timestamps: true }
 );
 
 const commentSchema = mongoose.Schema(
@@ -50,7 +49,7 @@ const commentSchema = mongoose.Schema(
       ref: 'User',
     },
   },
-  { timestamps: timestampsMixin }
+  { timestamps: true }
 );
 
 const softwareSchema = mongoose.Schema(
@@ -81,18 +80,18 @@ const softwareSchema = mongoose.Schema(
       fullAddress: String,
       headquarters: String,
       languages: [String],
-      platform: String,
+      platform: [String],
       businessScope: [String],
       supportSystem: [String],
       targetAudience: [String],
       developmentType: [String],
       apiSupport: String,
       customization: String,
-      companyType: String,
-      teamSize: String,
-      focusClient: String,
-      focusIndustry: String,
-      training: String,
+      companyType: [String],
+      teamSize: [String],
+      focusClient: [String],
+      focusIndustry: [String],
+      training: [String],
       paymentType: String,
       pricingModel: [String],
       productLaunch: String,
@@ -205,15 +204,23 @@ const softwareSchema = mongoose.Schema(
         ref: 'Article',
       },
     ],
-    categories: [
-      {
+    categories: {
+      parentCategory: {
         type: mongoose.Types.ObjectId,
-        ref: 'Categories',
+        ref: 'SoftwareCategory',
       },
-    ],
+      subCategory: {
+        type: mongoose.Types.ObjectId,
+        ref: 'SoftwareSubCategory',
+      },
+      childCategory: {
+        type: mongoose.Types.ObjectId,
+        ref: 'SoftwareChildCategory',
+      },
+    },
     reviews: [reviewSchema],
   },
-  { timestamps: timestampsMixin }
+  { timestamps: true }
 );
 
 const SoftwareModel = mongoose.model('Software', softwareSchema);
