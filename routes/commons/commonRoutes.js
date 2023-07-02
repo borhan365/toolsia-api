@@ -18,6 +18,10 @@ const AdSlotController = createCommonController('AdSlot');
 const CompanySizeController = createCommonController('CompanySize');
 const BusinessScopeController = createCommonController('BusinessScope');
 
+const PlatformController = createCommonController('Platform');
+const SupportSystemController = createCommonController('SupportSystem');
+const DevelopmentTypeController = createCommonController('DevelopmentType');
+
 // Language Routes
 router.post('/language', LanguageController.create);
 router.put('/language/:id', LanguageController.update);
@@ -121,5 +125,29 @@ router.get('/business-scope/:id', BusinessScopeController.getSingle);
 router.get('/business-scope', BusinessScopeController.getAll);
 router.delete('/business-scope/:id', BusinessScopeController.deleteSingle);
 router.delete('/business-scope', BusinessScopeController.deleteAll);
+
+// Platform
+router.post('/platform', PlatformController.create);
+router.put('/platform/:id', PlatformController.update);
+router.get('/platform/:id', PlatformController.getSingle);
+router.get('/platform', PlatformController.getAll);
+router.delete('/platform/:id', PlatformController.deleteSingle);
+router.delete('/platform', PlatformController.deleteAll);
+
+// Support system
+router.post('/support-system', SupportSystemController.create);
+router.put('/support-system/:id', SupportSystemController.update);
+router.get('/support-system/:id', SupportSystemController.getSingle);
+router.get('/support-system', SupportSystemController.getAll);
+router.delete('/support-system/:id', SupportSystemController.deleteSingle);
+router.delete('/support-system', SupportSystemController.deleteAll);
+
+// Development type
+router.post('/development-type', DevelopmentTypeController.create);
+router.put('/development-type/:id', DevelopmentTypeController.update);
+router.get('/development-type/:id', DevelopmentTypeController.getSingle);
+router.get('/development-type', DevelopmentTypeController.getAll);
+router.delete('/development-type/:id', DevelopmentTypeController.deleteSingle);
+router.delete('/development-type', DevelopmentTypeController.deleteAll);
 
 export default router;

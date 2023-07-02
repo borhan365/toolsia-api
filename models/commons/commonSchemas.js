@@ -65,6 +65,21 @@ const businessScope = mongoose.Schema({
   name: String,
 }, { timestamps: true });
 
+// platform
+const platform = mongoose.Schema({
+  name: String,
+}, { timestamps: true });
+
+// development type
+const developmentType = mongoose.Schema({
+  name: String,
+}, { timestamps: true });
+
+// support system
+const supportSystem = mongoose.Schema({
+  name: String,
+}, { timestamps: true });
+
 export const commonSchemas = {
   Language: languageSchema,
   CompanyType: companyType,
@@ -79,4 +94,7 @@ export const commonSchemas = {
   AdSlot: adSlot,
   CompanySize: companySize,
   BusinessScope: businessScope,
+  Platform: platform,
+  SupportSystem: supportSystem,
+  DevelopmentType: developmentType,
 };

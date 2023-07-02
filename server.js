@@ -13,16 +13,20 @@ import bloodDonnerRoutes from './routes/bloodDonnerRoutes.js'
 import locationRoutes from './routes/locationRoutes.js'
 import oxygenRoutes from './routes/oxygenRoutes.js'
 import pharmacyRoutes from './routes/pharmacyRoutes.js'
-import softwareCategoryRoutes from './routes/softwareCategoryRoutes.js'
 import uploadRoutes from './routes/uploadRoutes.js'
 import userRouters from './routes/userRoutes.js'
 import connectDB from './utils/connectDB.js'
+
+// software category
+import softwareChildCatRoutes from './routes/software/softwareChildCatRoutes.js'
+import softwareParentCatRoutes from './routes/software/softwareParentCatRoutes.js'
+import softwareSubCatRoutes from './routes/software/softwareSubCatRoutes.js'
 
 // doctor
 import degreeRoutes from './routes/degreeRoutes.js'
 import doctorTypeRoutes from './routes/doctorTypeRoutes.js'
 import jobDesignation from './routes/jobDesignationRoutes.js'
-import softwareRoutes from './routes/softwareRoutes.js'
+import softwareRoutes from './routes/software/softwareRoutes.js'
 import specialistRoutes from './routes/specialistRoutes.js'
 
 // hospital
@@ -43,9 +47,6 @@ import jobRoutes from './routes/jobRoutes.js'
 import pageRouters from './routes/pageRoutes.js'
 
 // commons
-import categoryRoutes from './routes/categories/categoryRoutes.js'
-import childCategoryRoutes from './routes/categories/childCategoryRoutes.js'
-import subCategoryRoutes from './routes/categories/subCategoryRoutes.js'
 import commonRoutes from './routes/commons/commonRoutes.js'
 
 const app = express()
@@ -68,9 +69,6 @@ app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
 // Commons
 app.use('/api/common', commonRoutes);
-app.use('/api/category', categoryRoutes);
-app.use('/api/sub-category', subCategoryRoutes);
-app.use('/api/child-category', childCategoryRoutes);
 
 
 // ROUTERS
@@ -94,7 +92,9 @@ app.use('/api/doctor/type', doctorTypeRoutes)
 
 // software
 app.use('/api/software', softwareRoutes);
-app.use('/api/software/category', softwareCategoryRoutes);
+app.use('/api/software-category', softwareParentCatRoutes);
+app.use('/api/software-sub-category', softwareSubCatRoutes);
+app.use('/api/software-child-category', softwareChildCatRoutes);
 
 // hospital
 app.use('/api/hospital/director/type', hospitalDirectorTypeRoutes)
