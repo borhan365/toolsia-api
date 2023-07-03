@@ -78,7 +78,7 @@ const singleCategory = asyncHandler( async( req, res) => {
   const category = await SoftwareSubCategory.findOne({slug: req.params.slug})
 
   if(!category) {
-    return res.status(404).json({msg: "category not found"})
+    return res.status(404).json({message: "category not found"})
   }
 
   res.json(category);

@@ -209,18 +209,13 @@ const allSoftwareController = asyncHandler( async( req, res) => {
 
 // DELETE POST
 const deleteSoftwareController = asyncHandler(async(req, res) => {
-  const Software = await SoftwareModel.findById(req.params.id)
-  if(!Software) {
-    res.status(404)
-    throw new Error("Software not found")
+  const software = await SoftwareModel.findById(req.params.id)
+  const deleteSoftware = software.remove()
+
+  if(deleteSoftware) {
+    res.status(200).json({msg: "Software deleted successfully!"})
   } else {
-    const deleteSoftware = await Software.remove()
-    if(deleteSoftware) {
-      res.status(200).json({message: "Software deleted!"})
-    } else {
-      res.status(500)
-      throw new Error("Server side error!")
-    }
+    res.status(404).json({msg: "Software not found"})
   }
 })
 
